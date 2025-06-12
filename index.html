@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emotion Music Recommender</title>
+  <style>
+    video, canvas {
+      display: block;
+      margin: 1rem auto;
+    }
+    #results iframe {
+      display: block;
+      margin: 1rem auto;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center">🎭 Emotion to Music 🎧</h1>
+  <video id="webcam" autoplay playsinline width="320" height="240"></video>
+  <button onclick="captureAndSend()">Detect Emotion & Recommend Music</button>
+  <canvas id="canvas" width="320" height="240" style="display:none"></canvas>
+  <div id="emotion" style="text-align:center;margin-top:1rem;font-weight:bold;"></div>
+  <div id="results"></div>
+
+  <script>
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('canvas');
+    const emotionDiv = document.getElementById('emotion');
+
+    async function setupCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+    }
+
+    async function captureAndSend() {
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('file', blob, 'snapshot.jpg');
+
+        const res = await fetch('https://emotion-music-backend-8cc5.onrender.com/emotion-music', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        emotionDiv.textContent = `Detected Emotion: ${data.emotion}`;
+
+        const results = document.getElementById('results');
+        results.innerHTML = '';
+        data.tracks.forEach(url => {
+          const iframe = document.createElement('iframe');
+          iframe.src = `https://open.spotify.com/embed/track/${url.split('/').pop()}`;
+          iframe.width = '300';
+          iframe.height = '80';
+          iframe.frameBorder = '0';
+          iframe.allow = 'encrypted-media';
+          results.appendChild(iframe);
+        });
+      }, 'image/jpeg');
+    }
+
+    setupCamera();
+  </script>
+</body>
+</html>
