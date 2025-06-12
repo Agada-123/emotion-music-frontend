@@ -29,8 +29,13 @@
     const emotionDiv = document.getElementById('emotion');
 
     async function setupCamera() {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      video.srcObject = stream;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("Could not access webcam. Please allow camera access.");
+        console.error(err);
+      }
     }
 
     async function captureAndSend() {
@@ -41,29 +46,36 @@
         const formData = new FormData();
         formData.append('file', blob, 'snapshot.jpg');
 
-        const res = await fetch('https://emotion-music-backend-8cc5.onrender.com/emotion-music', {
-          method: 'POST',
-          body: formData
-        });
+        try {
+          const res = await fetch('https://emotion-music-backend-8cc5.onrender.com/emotion-music', {
+            method: 'POST',
+            body: formData
+          });
 
-        const data = await res.json();
-        emotionDiv.textContent = `Detected Emotion: ${data.emotion}`;
+          if (!res.ok) throw new Error("Failed to get response from backend.");
 
-        const results = document.getElementById('results');
-        results.innerHTML = '';
-        data.tracks.forEach(url => {
-          const iframe = document.createElement('iframe');
-          iframe.src = `https://open.spotify.com/embed/track/${url.split('/').pop()}`;
-          iframe.width = '300';
-          iframe.height = '80';
-          iframe.frameBorder = '0';
-          iframe.allow = 'encrypted-media';
-          results.appendChild(iframe);
-        });
+          const data = await res.json();
+          emotionDiv.textContent = `Detected Emotion: ${data.emotion}`;
+
+          const results = document.getElementById('results');
+          results.innerHTML = '';
+          data.tracks.forEach(url => {
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://open.spotify.com/embed/track/${url.split('/').pop()}`;
+            iframe.width = '300';
+            iframe.height = '80';
+            iframe.frameBorder = '0';
+            iframe.allow = 'encrypted-media';
+            results.appendChild(iframe);
+          });
+        } catch (err) {
+          alert("Error detecting emotion or retrieving music.");
+          console.error(err);
+        }
       }, 'image/jpeg');
     }
 
-    setupCamera();
+    window.onload = setupCamera;
   </script>
 </body>
 </html>
