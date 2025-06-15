@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,22 +6,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emotion Music Recommender</title>
   <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4f46e5, #ec4899);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      justify-content: center;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+    }
+
     video, canvas {
       display: block;
       margin: 1rem auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background-color: #10b981;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      background-color: #059669;
+      transform: scale(1.05);
+    }
+
+    #emotion {
+      margin-top: 1.5rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
     #results iframe {
       display: block;
       margin: 1rem auto;
+      border-radius: 12px;
     }
   </style>
 </head>
 <body>
-  <h1 style="text-align:center">🎭 Emotion to Music 🎧</h1>
+  <h1>🎭 Emotion to Music 🎧</h1>
   <video id="webcam" autoplay playsinline width="320" height="240"></video>
   <button onclick="captureAndSend()">Detect Emotion & Recommend Music</button>
   <canvas id="canvas" width="320" height="240" style="display:none"></canvas>
-  <div id="emotion" style="text-align:center;margin-top:1rem;font-weight:bold;"></div>
+  <div id="emotion"></div>
   <div id="results"></div>
 
   <script>
