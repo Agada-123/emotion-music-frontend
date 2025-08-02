@@ -133,21 +133,22 @@
 
           const data = await res.json();
 
-          if (!data || !data.emotion) {
-            errorDiv.textContent = "No emotion detected from the image.";
+          if (!data || !data.emotion || data.emotion === "undefined" || data.emotion === null) {
+            errorDiv.textContent = "Could not detect emotion. Try again with a clearer face image.";
             return;
           }
 
           emotionDiv.textContent = `Detected Emotion: ${data.emotion}`;
 
-          if (!data.tracks || data.tracks.length === 0) {
+          if (!Array.isArray(data.tracks) || data.tracks.length === 0) {
             errorDiv.textContent = "No music tracks found for this emotion.";
             return;
           }
 
           data.tracks.forEach(url => {
+            const trackId = url.split('/').pop().split('?')[0]; // clean up track ID
             const iframe = document.createElement('iframe');
-            iframe.src = `https://open.spotify.com/embed/track/${url.split('/').pop()}`;
+            iframe.src = `https://open.spotify.com/embed/track/${trackId}`;
             iframe.width = '300';
             iframe.height = '80';
             iframe.frameBorder = '0';
@@ -158,7 +159,7 @@
         } catch (err) {
           loadingDiv.style.display = "none";
           errorDiv.textContent = "Error detecting emotion or retrieving music.";
-          console.error(err);
+          console.error("Frontend error:", err);
         }
       }, 'image/jpeg');
     }
